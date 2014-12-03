@@ -27,12 +27,14 @@ Bundle 'xolox/vim-lua-ftplugin'
 Bundle 'tpope/vim-vinegar'
 Bundle 'tpope/vim-markdown'
 Bundle 'mhinz/vim-signify'
+Bundle 'chriskempson/base16-vim'
 
 " required!
 filetype plugin indent on
 syntax on
 
 colorscheme Tomorrow-Night
+
 set guifont=Source\ Code\ Pro\ ExtraLight\ for\ Powerline:h14
 set background=dark
 
@@ -48,6 +50,7 @@ set incsearch
 set ignorecase
 set smartcase
 set autoindent
+
 autocmd BufEnter * silent! lcd %:p:h " alternative to autochdir
 
 if executable('ack')
@@ -128,25 +131,34 @@ highlight SignifySignDelete cterm=bold ctermbg=237  ctermfg=196
 highlight SignifySignChange cterm=bold ctermbg=237  ctermfg=208
 
 """ Unite
-
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 call unite#filters#sorter_default#use(['sorter_rank'])
-call unite#set_profile('files', 'smartcase', 1)
+call unite#set_profile('files', 
+    \ 'context', {
+        \ 'smartcase': 1
+    \ })
 call unite#custom#source('line,outline','matchers','matcher_fuzzy')
 let g:unite_prompt='» '
 
 " ctrl-p
-call unite#filters#matcher_default#use(['matcher_fuzzy'])
-call unite#custom#source('file_rec,file_rec/async', 'ignore_pattern', '\.sass-cache')
+let g:unite_source_file_rec_max_cache_files = 0
+call unite#custom#source('file_mru,file_rec,file_rec/async,grepocate',
+    \ 'max_candidates', 0)
+call unite#custom#source('file_rec,file_rec/async', 'matchers', 'matcher_project_ignore_files')
+call unite#custom#source('file_rec,file_rec/async', 'ignore_pattern', '\.sass-cache/\|node_modules/\|\.vagrant/')
 nnoremap <C-p> :Unite -start-insert file_rec/async<cr>
+nnoremap <C-g> :Unite -start-insert file_rec/git<cr>
+
 " ack
 let g:unite_source_grep_command = 'ack'
 let g:unite_source_grep_default_opts='--no-heading --no-color -C4'
 let g:unite_source_grep_recursive_opt=''
 nnoremap <space>/ :Unite grep:.<cr>
+
 " yankstack
 let g:unite_source_history_yank_enable = 1
 nnoremap <space>y :Unite history/yank<cr>
+
 " juggle
 nnoremap <space>s :Unite -quick-match buffer<cr>
 
